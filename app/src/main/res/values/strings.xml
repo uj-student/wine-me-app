@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">Wine Me App</string>
+    <string name="welcome_msg">Welcome to Wine Me Up!</string>
+    <string name="search_msg">Wine Search</string>
+    <string name="title_activity_side_menu">SideMenu</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="barcode_scanner_coming_soon">"Barcode Scanner coming soon"</string>
+    <string name="wine_catalogue">Wine Catalogue</string>
+    <string name="wine_ratings">Wine Ratings</string>
+    <string name="wine_types">Wine Type</string>
+    <string name="get_wine_recommendations">Get Wine Recommendations</string>
+    <string name="scan_wine_barcode">Scan a Wine Bottle\'s Barcode</string>
+
+
+
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_tools">Tools</string>
+    <string name="menu_share">Share</string>
+    <string name="menu_send">Send</string>
+    <string name="score">Score</string>
+    <string name="confidence">Confidence</string>
+    <string name="number_of_reviewers">Number of Reviewers</string>
+    <string name="order_ratings_message">Select one of the following to order ratings:</string>
+    <string name="remove_all">Remove All</string>
+    <string name="next_btn_text">Next</string>
+    <string name="wine_recommendations">Wines Worth Trying</string>
+    <string name="change_selection">Change Selection</string>
+</resources>
