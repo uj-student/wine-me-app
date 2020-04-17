@@ -2,6 +2,7 @@ package com.student.wine_me_up
 
 import android.os.Bundle
 import android.widget.ListView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.student.wine_me_up.utilities.BaseMethods
 import com.student.wine_me_up.utilities.WineDisplayAdapter
@@ -43,6 +44,10 @@ class WineCatalogueActivity : AppCompatActivity() {
     private fun setListeners() {
         backButton.setOnClickListener {
             finish()
+        }
+
+        barcodeFloatingButton.setOnClickListener {
+            Toast.makeText(this, getString(R.string.barcode_scanner_coming_soon), Toast.LENGTH_LONG).show()
         }
     }
 }
