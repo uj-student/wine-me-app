@@ -34,24 +34,9 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="1dp"
             android:text="@string/welcome_msg"
-            app:layout_constraintBottom_toTopOf="@+id/searchView"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <SearchView
-            android:id="@+id/searchView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="1dp"
-            android:layout_marginBottom="1dp"
-            android:iconifiedByDefault="false"
-            android:queryHint="@string/search_msg"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/welcomeText" />
 
     </LinearLayout>
 
@@ -102,7 +87,7 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_wine_1" />
+                android:src="@drawable/ic_wine_3" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
@@ -123,7 +108,7 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_wine_glass" />
+                android:src="@drawable/ic_wine_1" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView

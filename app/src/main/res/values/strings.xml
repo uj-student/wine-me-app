@@ -33,4 +33,5 @@
     <string name="next_btn_text">Next</string>
     <string name="wine_recommendations">Wines Worth Trying</string>
     <string name="change_selection">Change Selection</string>
+    <string name="back_button">Back</string>
 </resources>

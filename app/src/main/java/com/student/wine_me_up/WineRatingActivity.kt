@@ -2,6 +2,7 @@ package com.student.wine_me_up
 
 import android.os.Bundle
 import android.widget.ListView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.chip.Chip
 import com.student.wine_me_up.utilities.BaseMethods
@@ -70,6 +71,18 @@ class WineRatingActivity : AppCompatActivity() {
 
         reviewerChip.setOnClickListener {
             populateViews(sortByReviewers.toList())
+        }
+
+        displayList.setOnItemClickListener { parent, view, position, id ->  Toast.makeText(this, "Hello $position $id.", Toast.LENGTH_LONG).show()
+            val wineDetails = WineDetailsFragment()
+            val fragmentTransaction = supportFragmentManager.beginTransaction()
+            fragmentTransaction.replace(R.id.clWineRating, wineDetails, null)
+            fragmentTransaction.addToBackStack(null)
+            fragmentTransaction.commit()
+        }
+
+        backButton.setOnClickListener{
+            finish()
         }
     }
 

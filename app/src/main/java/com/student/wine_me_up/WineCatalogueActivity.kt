@@ -32,10 +32,17 @@ class WineCatalogueActivity : AppCompatActivity() {
             )
             runOnUiThread { displayList.adapter = adapter }
         }
+        setListeners()
     }
 
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
+    }
+
+    private fun setListeners() {
+        backButton.setOnClickListener {
+            finish()
+        }
     }
 }
