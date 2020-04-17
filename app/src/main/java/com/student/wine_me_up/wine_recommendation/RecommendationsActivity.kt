@@ -7,9 +7,8 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.children
-import androidx.core.view.isNotEmpty
 import com.google.android.material.chip.Chip
+import com.student.wine_me_up.WineDetailsFragment
 import com.student.wine_me_up.models.WineEntries
 import com.student.wine_me_up.utilities.BaseMethods.convertToWineEntries
 import com.student.wine_me_up.utilities.WineDisplayAdapter
@@ -88,8 +87,13 @@ class RecommendationsActivity : AppCompatActivity() {
     }
 
     private fun setListener() {
+
         removeAllButton.setOnClickListener {
-            wineCategoryChipGroup.clearCheck()
+            if (!winePreferences.isNullOrEmpty()) {
+                wineCategoryChipGroup.clearCheck()
+            } else {
+                finish()
+            }
         }
 
         nextButton.setOnClickListener {
@@ -166,6 +170,12 @@ class RecommendationsActivity : AppCompatActivity() {
                 } else {
                     preferences.remove(chip.text.toString())
                 }
+                if (!preferences.isNullOrEmpty()) {
+                    removeAllButton.text = getString(R.string.remove_all)
+                } else {
+                    removeAllButton.text = getString(R.string.back_button)
+                }
+
                 val msg =
                     "You have " + (if (isChecked) "checked" else "unchecked") + " ${chip.text}."
                 Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
@@ -176,7 +186,7 @@ class RecommendationsActivity : AppCompatActivity() {
     }
 
     private fun addFragment() {
-        val recommendation = RecommendationFragment()
+        val recommendation = WineDetailsFragment()
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.wineCategoryChipGroup, recommendation, null)
         fragmentTransaction.addToBackStack(null)
