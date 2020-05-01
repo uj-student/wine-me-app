@@ -62,6 +62,14 @@
             android:text="@string/number_of_reviewers"
             app:chipIcon="@drawable/ic_number_of_reviewers" />
 
+        <com.google.android.material.chip.Chip
+            android:id="@+id/primeurs_chip"
+            style="@style/Widget.MaterialComponents.Chip.Action"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/wine_primeurs"
+            app:chipIcon="@drawable/ic_best" />
+
     </com.google.android.material.chip.ChipGroup>
 
     <ListView
@@ -83,4 +91,5 @@
         android:text="@string/back_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/lvSortedWineList" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

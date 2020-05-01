@@ -18,7 +18,6 @@ class WineDisplayAdapter(context: Context, private val data: List<WineEntries>) 
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
 
-
         val rowView = inflater.run { inflate(layout.list_item_wine, parent, false) }
 
         val titleTextView = rowView.findViewById(R.id.wineName) as TextView
@@ -36,7 +35,6 @@ class WineDisplayAdapter(context: Context, private val data: List<WineEntries>) 
         wineTypeTextView.text = wine.classification
 
 //        detailTextView.text = "More"
-
 
         return rowView
     }

@@ -1,11 +1,13 @@
 package com.student.wine_me_up
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.chip.Chip
 import com.student.wine_me_up.utilities.BaseMethods
+import com.student.wine_me_up.utilities.WineDetailsFragment
 import com.student.wine_me_up.utilities.WineDisplayAdapter
 import com.student.wine_me_up.wine_repo.WineDatabase
 import kotlinx.android.synthetic.main.activity_wine_rating.*
@@ -19,10 +21,12 @@ class WineRatingActivity : AppCompatActivity() {
     private lateinit var scoreChip: Chip
     private lateinit var confidenceChip: Chip
     private lateinit var reviewerChip: Chip
+    private lateinit var primeursChip: Chip
 
     private lateinit var sortByScore: Set<WineEntries1>
     private lateinit var sortByConfidence: Set<WineEntries1>
     private lateinit var sortByReviewers: Set<WineEntries1>
+    private lateinit var sortByPrimeurs: Set<WineEntries1>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +40,8 @@ class WineRatingActivity : AppCompatActivity() {
         scoreChip = score_chip
         reviewerChip = reviewers_chip
         confidenceChip = confidence_chip
+        primeursChip = primeurs_chip
+
 
         setListeners()
 
@@ -53,6 +59,8 @@ class WineRatingActivity : AppCompatActivity() {
             BaseMethods.convertToWineEntries(WineDatabase.getInstance(this).wineDao().getHighestConfidence().toSet())
         sortByReviewers =
             BaseMethods.convertToWineEntries(WineDatabase.getInstance(this).wineDao().getTopNumberOfReviewers().toSet())
+        sortByPrimeurs =
+            BaseMethods.convertToWineEntries(WineDatabase.getInstance(this).wineDao().getPrimeurs().toSet())
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -60,28 +68,48 @@ class WineRatingActivity : AppCompatActivity() {
         return true
     }
 
+    private fun checkIfResultsFound(listOfWineResults: List<WineEntries1>) {
+        if (listOfWineResults.isNullOrEmpty()) {
+            Toast.makeText(this, "No available wines", Toast.LENGTH_SHORT).show()
+            return
+        }
+        populateViews(listOfWineResults)
+        Toast.makeText(this, "Found some wines", Toast.LENGTH_SHORT).show()
+
+    }
+
     private fun setListeners() {
         confidenceChip.setOnClickListener {
-            populateViews(sortByConfidence.toList())
+            checkIfResultsFound(sortByConfidence.toList())
         }
 
         scoreChip.setOnClickListener {
-            populateViews(sortByScore.toList())
+            checkIfResultsFound(sortByScore.toList())
         }
 
         reviewerChip.setOnClickListener {
-            populateViews(sortByReviewers.toList())
+            checkIfResultsFound(sortByReviewers.toList())
         }
 
-        displayList.setOnItemClickListener { parent, view, position, id ->  Toast.makeText(this, "Hello $position $id.", Toast.LENGTH_LONG).show()
-            val wineDetails = WineDetailsFragment()
+        primeursChip.setOnClickListener {
+            checkIfResultsFound(sortByPrimeurs.toList())
+        }
+
+        displayList.setOnItemClickListener { parent, view, position, id ->
+            var wineList = sortByScore
             val fragmentTransaction = supportFragmentManager.beginTransaction()
-            fragmentTransaction.replace(R.id.clWineRating, wineDetails, null)
+            if (confidenceChip.isSelected)
+                wineList = sortByConfidence
+            else if (reviewerChip.isSelected)
+                wineList = sortByReviewers
+
+            val wineDetails = WineDetailsFragment(wineList.toList()[position])
+            fragmentTransaction.add(R.id.clWineRating, wineDetails, null)
             fragmentTransaction.addToBackStack(null)
             fragmentTransaction.commit()
         }
 
-        backButton.setOnClickListener{
+        backButton.setOnClickListener {
             finish()
         }
     }

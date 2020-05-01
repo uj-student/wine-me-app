@@ -31,6 +31,8 @@
         <activity android:name=".wine_recommendation.RecommendationsActivity" />
 
         <activity android:name=".WineRatingActivity" />
+        <activity android:name=".ProgressBar" />
+        <activity android:name=".barcode_scanner.BarcodeScanner" />
     </application>
 
 </manifest>

@@ -59,7 +59,7 @@ class WineRecommendFactory(private var wineList: List<WineEntries>) {
     }
 
     //    cosine similarity of i and j
-    //    = (i*j) / (||i||*||j||)
+    //    = (i.j) / (||i||*||j||)
     private fun cosineSimilarity(firstWine: WineEntries, secondWine: WineEntries): Float {
         var dotProduct = 0
         var cosineBetweenFirstAndSecond = 0F

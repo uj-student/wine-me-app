@@ -2,6 +2,8 @@ package com.student.wine_me_up.network
 
 import android.content.Context
 import android.widget.Toast
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.student.wine_me_up.utilities.BaseMethods.convertWineEntriesToWine
@@ -20,6 +22,12 @@ open class ApiController {
     private val baseApiUrl = "https://api.globalwinescore.com/"
     private val token = "af61b2f3892e86a85931114852772cac6397e987"
 
+    companion object{
+        val isNetworkDone = MutableLiveData<Boolean>()
+        val _isNetworkDone: LiveData<Boolean>
+        get () = isNetworkDone
+    }
+
     private fun networkClient(): Retrofit {
         val gson: Gson = GsonBuilder().setLenient().create()
 
@@ -34,6 +42,7 @@ open class ApiController {
         val wineApi: INetworkManager = networkClient().create(INetworkManager::class.java)
 
         val call = wineApi.getLatest("Token $token")
+        isNetworkDone.postValue(false)
         call.enqueue(object : Callback<LatestWineScoreResponse> {
             override fun onResponse(
                 call: Call<LatestWineScoreResponse>,
@@ -56,6 +65,7 @@ open class ApiController {
                         }
                     }
                     Toast.makeText(context, "Saving to DB Successful", Toast.LENGTH_LONG).show()
+                    isNetworkDone.postValue(true)
                 }
             }
 
