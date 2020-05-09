@@ -8,7 +8,7 @@ import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.chip.Chip
-import com.student.wine_me_up.WineDetailsFragment
+import com.student.wine_me_up.utilities.WineDetailsFragment
 import com.student.wine_me_up.models.WineEntries
 import com.student.wine_me_up.utilities.BaseMethods.convertToWineEntries
 import com.student.wine_me_up.utilities.WineDisplayAdapter
@@ -26,6 +26,7 @@ class RecommendationsActivity : AppCompatActivity() {
 
     private lateinit var wineCategory: Set<WineEntries>
     private lateinit var winePreferences: Set<String>
+    private lateinit var wineRecommendationList: List<WineEntries>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,11 +104,11 @@ class RecommendationsActivity : AppCompatActivity() {
                 supportActionBar?.title = getString(R.string.wine_recommendations)
 
                 GlobalScope.launch {
-                    val recommendations =
+                    wineRecommendationList =
                         WineRecommendFactory(wineCategory.toList()).contentBasedFiltering(
                             winePreferences
                         )
-                    val adapter = WineDisplayAdapter(applicationContext, recommendations)
+                    val adapter = WineDisplayAdapter(applicationContext, wineRecommendationList)
                     runOnUiThread {
                         lvWineRecommendations.adapter = adapter
                     }
@@ -116,6 +117,16 @@ class RecommendationsActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Please select at least one item", Toast.LENGTH_SHORT).show()
             }
+        }
+
+
+        lvWineRecommendations.setOnItemClickListener { parent, view, position, id ->
+
+            val fragmentTransaction = supportFragmentManager.beginTransaction()
+            val wineDetails = WineDetailsFragment(wineRecommendationList[position])
+            fragmentTransaction.replace(R.id.lvWineRecommendations, wineDetails, null)
+            fragmentTransaction.addToBackStack(null)
+            fragmentTransaction.commit()
         }
 
         backButton.setOnClickListener {
@@ -185,11 +196,13 @@ class RecommendationsActivity : AppCompatActivity() {
         return preferences
     }
 
-    private fun addFragment() {
-        val recommendation = WineDetailsFragment()
-        val fragmentTransaction = supportFragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.wineCategoryChipGroup, recommendation, null)
-        fragmentTransaction.addToBackStack(null)
-        fragmentTransaction.commit()
-    }
+
+
+//    private fun addFragment() {
+//        val recommendation = WineDetailsFragment()
+//        val fragmentTransaction = supportFragmentManager.beginTransaction()
+//        fragmentTransaction.replace(R.id.wineCategoryChipGroup, recommendation, null)
+//        fragmentTransaction.addToBackStack(null)
+//        fragmentTransaction.commit()
+//    }
 }

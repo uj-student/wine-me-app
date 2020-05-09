@@ -19,6 +19,10 @@ interface WineDao {
     @Query("Select * from wine order by confidence_index desc limit 10")
     fun getHighestConfidence(): List<Wine>
 
+    @Query("Select * from wine where is_primeurs = 1 order by confidence_index desc limit 10")
+    fun getPrimeurs(): List<Wine>
+
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveWine(wineResponse: Wine)
 

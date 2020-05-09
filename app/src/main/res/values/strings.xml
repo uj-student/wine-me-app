@@ -16,8 +16,8 @@
     <string name="wine_types">Wine Type</string>
     <string name="get_wine_recommendations">Get Wine Recommendations</string>
     <string name="scan_wine_barcode">Scan a Wine Bottle\'s Barcode</string>
-
-
+    <string name="refresh_wine_list">Refresh Wine List</string>
+    <string name="refresh_wine_msg">Refreshing List of Wines</string>
 
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
@@ -28,10 +28,25 @@
     <string name="score">Score</string>
     <string name="confidence">Confidence</string>
     <string name="number_of_reviewers">Number of Reviewers</string>
+    <string name="wine_primeurs">Primeurs</string>
     <string name="order_ratings_message">Select one of the following to order ratings:</string>
     <string name="remove_all">Remove All</string>
     <string name="next_btn_text">Next</string>
     <string name="wine_recommendations">Wines Worth Trying</string>
     <string name="change_selection">Change Selection</string>
     <string name="back_button">Back</string>
+    <string name="not_available">Not Available</string>
+
+    <string name="appellation_label">Appellation: %s</string>
+    <string name="color_label">Colour: %s</string>
+    <string name="country_label">Country: %s</string>
+    <string name="region_label">Region: %s</string>
+    <string name="type_label">Type: %s</string>
+    <string name="classification_label">Classification: %s</string>
+    <string name="vintage_label">Vintage: %s</string>
+    <string name="date_label">Date: %s</string>
+    <string name="primeurs_label">Is Primeurs: %s</string>
+    <string name="score_label">Score: %s</string>
+    <string name="confidence_label">Confidence: %s</string>
+    <string name="reviewer_count_label">Number of Reviews: %s</string>
 </resources>
