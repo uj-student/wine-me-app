@@ -38,4 +38,9 @@ interface WineDao {
     @Query("Select * from WineReviewsEntity")
     fun getAllReviews(): List<WineReviewsEntity>
 
+    @Query("select * from WineReviewsEntity order by points desc limit 20")
+    fun getTopPoints(): List<WineReviewsEntity>
+
+    @Query("select * from WineReviewsEntity order by price desc limit 20")
+    fun getHighestPrice(): List<WineReviewsEntity>
 }

@@ -1,14 +1,18 @@
 package com.student.wine_me_up
 
 import android.os.Bundle
+import android.view.View
 import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.chip.Chip
 import com.student.wine_me_up.models.SourceOfData
+import com.student.wine_me_up.models.WineReviewsModel
 import com.student.wine_me_up.utilities.BaseMethods
-import com.student.wine_me_up.utilities.WineDetailsFragment
 import com.student.wine_me_up.utilities.GlobalWineDisplayAdapter
+import com.student.wine_me_up.utilities.WineDetailsFragment
+import com.student.wine_me_up.utilities.WineReviewDisplayAdapter
+import com.student.wine_me_up.wine_repo.WineDao
 import com.student.wine_me_up.wine_repo.WineDatabase
 import kotlinx.android.synthetic.main.activity_wine_rating.*
 import kotlinx.coroutines.GlobalScope
@@ -28,6 +32,9 @@ class WineRatingActivity : AppCompatActivity() {
     private lateinit var sortByReviewers: Set<WineEntries1>
     private lateinit var sortByPrimeurs: Set<WineEntries1>
 
+    private lateinit var sortByPrice: Set<WineReviewsModel>
+    private lateinit var sortByPoints: Set<WineReviewsModel>
+
     private lateinit var sourceOfData: SourceOfData
 
 
@@ -46,25 +53,42 @@ class WineRatingActivity : AppCompatActivity() {
         confidenceChip = confidence_chip
         primeursChip = primeurs_chip
 
-
         setListeners()
 
-        if (sourceOfData == SourceOfData.GLOBAL_API){
+        if (sourceOfData == SourceOfData.GLOBAL_API) {
             GlobalScope.launch {
                 getGlobalWineLists()
             }
+        } else {
+            GlobalScope.launch {
+                getReviewList()
+            }
+            confidenceChip.visibility = View.GONE
+            reviewerChip.visibility = View.GONE
+
+            scoreChip.text = "Points"
+            primeursChip.text = "Price"
         }
     }
 
     private fun getGlobalWineLists() {
         sortByScore =
-            BaseMethods.convertToWineModelSet(WineDatabase.getInstance(this).wineDao().getTopScoreWine().toSet())
+            BaseMethods.convertToWineModelSet(accessDB().getTopScoreWine().toSet())
         sortByConfidence =
-            BaseMethods.convertToWineModelSet(WineDatabase.getInstance(this).wineDao().getHighestConfidence().toSet())
+            BaseMethods.convertToWineModelSet(accessDB().getHighestConfidence().toSet())
         sortByReviewers =
-            BaseMethods.convertToWineModelSet(WineDatabase.getInstance(this).wineDao().getTopNumberOfReviewers().toSet())
+            BaseMethods.convertToWineModelSet(accessDB().getTopNumberOfReviewers().toSet())
         sortByPrimeurs =
-            BaseMethods.convertToWineModelSet(WineDatabase.getInstance(this).wineDao().getPrimeurs().toSet())
+            BaseMethods.convertToWineModelSet(accessDB().getPrimeurs().toSet())
+    }
+
+    private fun accessDB(): WineDao {
+        return WineDatabase.getInstance(this).wineDao()
+    }
+
+    private fun getReviewList() {
+        sortByPrice = BaseMethods.convertToWineReviewSet(accessDB().getHighestPrice().toSet())
+        sortByPoints = BaseMethods.convertToWineReviewSet(accessDB().getTopPoints().toSet())
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -72,7 +96,7 @@ class WineRatingActivity : AppCompatActivity() {
         return true
     }
 
-    private fun checkIfResultsFound(listOfWineResults: List<WineEntries1>) {
+    private fun checkIfResultsFound(listOfWineResults: List<*>) {
         if (listOfWineResults.isNullOrEmpty()) {
             Toast.makeText(this, "No available wines", Toast.LENGTH_SHORT).show()
             return
@@ -83,20 +107,29 @@ class WineRatingActivity : AppCompatActivity() {
     }
 
     private fun setListeners() {
-        confidenceChip.setOnClickListener {
-            checkIfResultsFound(sortByConfidence.toList())
-        }
+        if (sourceOfData == SourceOfData.GLOBAL_API) {
+            confidenceChip.setOnClickListener {
+                checkIfResultsFound(sortByConfidence.toList())
+            }
 
-        scoreChip.setOnClickListener {
-            checkIfResultsFound(sortByScore.toList())
-        }
+            scoreChip.setOnClickListener {
+                checkIfResultsFound(sortByScore.toList())
+            }
 
-        reviewerChip.setOnClickListener {
-            checkIfResultsFound(sortByReviewers.toList())
-        }
+            reviewerChip.setOnClickListener {
+                checkIfResultsFound(sortByReviewers.toList())
+            }
 
-        primeursChip.setOnClickListener {
-            checkIfResultsFound(sortByPrimeurs.toList())
+            primeursChip.setOnClickListener {
+                checkIfResultsFound(sortByPrimeurs.toList())
+            }
+        } else {
+            scoreChip.setOnClickListener {
+                checkIfResultsFound(sortByPoints.toList())
+            }
+            primeursChip.setOnClickListener {
+                checkIfResultsFound(sortByPrice.toList())
+            }
         }
 
         displayList.setOnItemClickListener { parent, view, position, id ->
@@ -118,9 +151,18 @@ class WineRatingActivity : AppCompatActivity() {
         }
     }
 
-    private fun populateViews(sortedWines: List<WineEntries1>) {
-        val adapter = GlobalWineDisplayAdapter(this, sortedWines)
-        displayList.adapter = adapter
+    private fun populateViews(sortedWines: List<*>) {
+        if (sourceOfData == SourceOfData.GLOBAL_API) {
+            val adapter = GlobalWineDisplayAdapter(this, sortedWines as List<WineEntries1>)
+
+            displayList.adapter = adapter
+        } else {
+            val adapter = WineReviewDisplayAdapter(this, sortedWines as List<WineReviewsModel>)
+
+            displayList.adapter = adapter
+        }
+
+
     }
 
     fun ratingType(wines: List<WineEntries1>?, sortBy: String): Set<String> {
