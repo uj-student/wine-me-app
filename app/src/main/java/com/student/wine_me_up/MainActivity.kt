@@ -3,23 +3,25 @@ package com.student.wine_me_up
 import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.google.android.material.navigation.NavigationView
+import com.student.wine_me_up.models.SourceOfData
+import com.student.wine_me_up.models.WineReviewsModel
 import com.student.wine_me_up.network.ApiController
 import com.student.wine_me_up.wine_recommendation.RecommendationsActivity
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.progress_bar.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
+    private lateinit var wineReviews: List<WineReviewsModel>
+    private var dataSource = SourceOfData.GLOBAL_API
 
     private lateinit var dialog: Dialog
 
@@ -31,12 +33,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         supportActionBar?.setIcon(R.drawable.ic_burger_icon)
 
 
-//        getWines()
+        //        getWines()
         ApiController._isNetworkDone.observe(this, Observer {
             it?.let {
-                if (it){
+                if (it) {
                     Log.d("DIALOG: ", it.toString())
-                    if (dialog.isShowing){
+                    if (dialog.isShowing) {
                         dialog.dismiss()
                     }
                 }
@@ -63,18 +65,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun setListeners() {
+
+        globalScore.setOnClickListener {
+            dataSource = SourceOfData.GLOBAL_API
+        }
+
+        twitterReviewers.setOnClickListener {
+            dataSource = SourceOfData.JSON_FILE
+        }
+
         wineCatalogue.setOnClickListener {
             val intent = Intent(applicationContext, WineCatalogueActivity::class.java)
+            intent.putExtra("dataSource", dataSource)
             startActivity(intent)
         }
 
         wineRatings.setOnClickListener {
             val intent = Intent(this, WineRatingActivity::class.java)
+            intent.putExtra("dataSource", dataSource)
             startActivity(intent)
         }
 
         trySomethingNew.setOnClickListener {
             val intent = Intent(applicationContext, RecommendationsActivity::class.java)
+            intent.putExtra("dataSource", dataSource)
             startActivity(intent)
         }
 
@@ -85,7 +99,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         refreshFloatingButton.setOnClickListener {
             getWines()
-            setDialog(true)
+//            setDialog(false)
         }
     }
 

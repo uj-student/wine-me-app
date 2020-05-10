@@ -6,36 +6,47 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.student.wine_me_up.utilities.BaseMethods.convertWineEntriesToWine
 import com.student.wine_me_up.models.LatestWineScoreResponse
+import com.student.wine_me_up.utilities.BaseMethods.convertWineEntriesToWine
 import com.student.wine_me_up.wine_repo.WineDatabase
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+
 open class ApiController {
 
     private val baseApiUrl = "https://api.globalwinescore.com/"
     private val token = "af61b2f3892e86a85931114852772cac6397e987"
 
-    companion object{
+    companion object {
         val isNetworkDone = MutableLiveData<Boolean>()
         val _isNetworkDone: LiveData<Boolean>
-        get () = isNetworkDone
+            get() = isNetworkDone
     }
 
     private fun networkClient(): Retrofit {
+
+        val logging = HttpLoggingInterceptor()
+        logging.level = HttpLoggingInterceptor.Level.BODY
+
+        val client = OkHttpClient.Builder()
+            .addInterceptor(logging)
+            .build()
+
         val gson: Gson = GsonBuilder().setLenient().create()
 
         return Retrofit.Builder()
             .baseUrl(baseApiUrl)
             .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(client)
             .build()
-
     }
 
     fun makeCall(context: Context) {

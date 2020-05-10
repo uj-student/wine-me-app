@@ -27,7 +27,7 @@ class UiNavigationTest {
 
         Thread.sleep(1000)
 
-        onView(withId(R.id.ratingMessageHeader)).check(matches(withText("Wine Ratings")))
+        onView(withId(R.id.ratingMessageHeader)).check(matches(withText("WineEntity Ratings")))
 
         Thread.sleep(1000)
 

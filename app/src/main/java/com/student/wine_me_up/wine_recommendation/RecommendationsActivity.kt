@@ -9,9 +9,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.chip.Chip
 import com.student.wine_me_up.utilities.WineDetailsFragment
-import com.student.wine_me_up.models.WineEntries
-import com.student.wine_me_up.utilities.BaseMethods.convertToWineEntries
-import com.student.wine_me_up.utilities.WineDisplayAdapter
+import com.student.wine_me_up.models.WineModel
+import com.student.wine_me_up.utilities.BaseMethods.convertToWineModelSet
+import com.student.wine_me_up.utilities.GlobalWineDisplayAdapter
 import com.student.wine_me_up.wine_repo.WineDatabase
 import kotlinx.android.synthetic.main.activity_recommendation.*
 import kotlinx.coroutines.GlobalScope
@@ -24,9 +24,9 @@ class RecommendationsActivity : AppCompatActivity() {
     private lateinit var slideUpAnimation: Animation
     private lateinit var slideDownAnimation: Animation
 
-    private lateinit var wineCategory: Set<WineEntries>
+    private lateinit var wineCategory: Set<WineModel>
     private lateinit var winePreferences: Set<String>
-    private lateinit var wineRecommendationList: List<WineEntries>
+    private lateinit var wineRecommendationList: List<WineModel>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,7 +51,7 @@ class RecommendationsActivity : AppCompatActivity() {
 
         GlobalScope.launch {
             wineCategory =
-                convertToWineEntries(WineDatabase.getInstance(applicationContext).wineDao().getAllWines().toSet())
+                convertToWineModelSet(WineDatabase.getInstance(applicationContext).wineDao().getAllWines().toSet())
             val wineSet = getListOfCheckBoxes(wineCategory.toList())
             runOnUiThread {
                 winePreferences = populateCheckBoxes(wineSet)
@@ -66,7 +66,7 @@ class RecommendationsActivity : AppCompatActivity() {
         return true
     }
 
-    private fun getListOfCheckBoxes(wines: List<WineEntries>?): Set<String> {
+    private fun getListOfCheckBoxes(wines: List<WineModel>?): Set<String> {
         val wineCategoryList = mutableSetOf<String>()
         wines?.let {
             for (wine in it) {
@@ -108,7 +108,7 @@ class RecommendationsActivity : AppCompatActivity() {
                         WineRecommendFactory(wineCategory.toList()).contentBasedFiltering(
                             winePreferences
                         )
-                    val adapter = WineDisplayAdapter(applicationContext, wineRecommendationList)
+                    val adapter = GlobalWineDisplayAdapter(applicationContext, wineRecommendationList)
                     runOnUiThread {
                         lvWineRecommendations.adapter = adapter
                     }

@@ -49,4 +49,6 @@
     <string name="score_label">Score: %s</string>
     <string name="confidence_label">Confidence: %s</string>
     <string name="reviewer_count_label">Number of Reviews: %s</string>
+    <string name="global_scores">Global Scores</string>
+    <string name="twitter_reviewers">Twitter Reviewers</string>
 </resources>

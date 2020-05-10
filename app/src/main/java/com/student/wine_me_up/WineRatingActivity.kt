@@ -1,19 +1,19 @@
 package com.student.wine_me_up
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.chip.Chip
+import com.student.wine_me_up.models.SourceOfData
 import com.student.wine_me_up.utilities.BaseMethods
 import com.student.wine_me_up.utilities.WineDetailsFragment
-import com.student.wine_me_up.utilities.WineDisplayAdapter
+import com.student.wine_me_up.utilities.GlobalWineDisplayAdapter
 import com.student.wine_me_up.wine_repo.WineDatabase
 import kotlinx.android.synthetic.main.activity_wine_rating.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import com.student.wine_me_up.models.WineEntries as WineEntries1
+import com.student.wine_me_up.models.WineModel as WineEntries1
 
 class WineRatingActivity : AppCompatActivity() {
 
@@ -28,10 +28,14 @@ class WineRatingActivity : AppCompatActivity() {
     private lateinit var sortByReviewers: Set<WineEntries1>
     private lateinit var sortByPrimeurs: Set<WineEntries1>
 
+    private lateinit var sourceOfData: SourceOfData
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_wine_rating)
+
+        sourceOfData = intent.extras?.get("dataSource") as SourceOfData
 
         supportActionBar?.title = getString(R.string.wine_ratings)
         supportActionBar?.setDisplayShowHomeEnabled(true)
@@ -45,22 +49,22 @@ class WineRatingActivity : AppCompatActivity() {
 
         setListeners()
 
-        GlobalScope.launch {
-            getLists()
+        if (sourceOfData == SourceOfData.GLOBAL_API){
+            GlobalScope.launch {
+                getGlobalWineLists()
+            }
         }
-
     }
 
-
-    private fun getLists() {
+    private fun getGlobalWineLists() {
         sortByScore =
-            BaseMethods.convertToWineEntries(WineDatabase.getInstance(this).wineDao().getTopScoreWine().toSet())
+            BaseMethods.convertToWineModelSet(WineDatabase.getInstance(this).wineDao().getTopScoreWine().toSet())
         sortByConfidence =
-            BaseMethods.convertToWineEntries(WineDatabase.getInstance(this).wineDao().getHighestConfidence().toSet())
+            BaseMethods.convertToWineModelSet(WineDatabase.getInstance(this).wineDao().getHighestConfidence().toSet())
         sortByReviewers =
-            BaseMethods.convertToWineEntries(WineDatabase.getInstance(this).wineDao().getTopNumberOfReviewers().toSet())
+            BaseMethods.convertToWineModelSet(WineDatabase.getInstance(this).wineDao().getTopNumberOfReviewers().toSet())
         sortByPrimeurs =
-            BaseMethods.convertToWineEntries(WineDatabase.getInstance(this).wineDao().getPrimeurs().toSet())
+            BaseMethods.convertToWineModelSet(WineDatabase.getInstance(this).wineDao().getPrimeurs().toSet())
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -115,7 +119,7 @@ class WineRatingActivity : AppCompatActivity() {
     }
 
     private fun populateViews(sortedWines: List<WineEntries1>) {
-        val adapter = WineDisplayAdapter(this, sortedWines)
+        val adapter = GlobalWineDisplayAdapter(this, sortedWines)
         displayList.adapter = adapter
     }
 

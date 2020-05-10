@@ -7,13 +7,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.student.wine_me_up.R
-import com.student.wine_me_up.models.WineEntries
-import kotlinx.android.synthetic.main.fragment_wine_details.*
-import kotlinx.android.synthetic.main.list_item_wine.view.*
-import kotlin.reflect.typeOf
+import com.student.wine_me_up.models.WineModel
 
 
-class WineDetailsFragment(private val wineObject: WineEntries) : Fragment() {
+class WineDetailsFragment(private val wineObject: WineModel) : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,

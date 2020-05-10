@@ -1,20 +1,16 @@
 package com.student.wine_me_up.wine_recommendation
 
-import android.util.Log
-import com.student.wine_me_up.models.WineEntries
-import java.util.Map.Entry.comparingByValue
-import java.util.stream.Collectors
-import java.util.stream.Collectors.toMap
+import com.student.wine_me_up.models.WineModel
 import kotlin.math.sqrt
 
 
-class WineRecommendFactory(private var wineList: List<WineEntries>) {
+class WineRecommendFactory(private var wineList: List<WineModel>) {
 
     private val displayLimit = 10
-    fun contentBasedFiltering(userWinePreferences: Set<String>): List<WineEntries> {
+    fun contentBasedFiltering(userWinePreferences: Set<String>): List<WineModel> {
         val wineList = filterWineList(userWinePreferences)
-        val wineAndCosine = LinkedHashMap<List<WineEntries>, Float>()
-        val returnObject = mutableSetOf<WineEntries>()
+        val wineAndCosine = LinkedHashMap<List<WineModel>, Float>()
+        val returnObject = mutableSetOf<WineModel>()
 
 
         for (wine in wineList.indices) {
@@ -45,8 +41,8 @@ class WineRecommendFactory(private var wineList: List<WineEntries>) {
 
     //    preferences => [wine_type, color, classification, appellation]
     //    get list that meets the basic criteria
-    private fun filterWineList(userWinePreferences: Set<String>): Set<WineEntries> {
-        val returnObject = mutableListOf<WineEntries>()
+    private fun filterWineList(userWinePreferences: Set<String>): Set<WineModel> {
+        val returnObject = mutableListOf<WineModel>()
 
         for (wine in wineList) {
             if (wine.wine_type in userWinePreferences || wine.color in userWinePreferences
@@ -60,7 +56,7 @@ class WineRecommendFactory(private var wineList: List<WineEntries>) {
 
     //    cosine similarity of i and j
     //    = (i.j) / (||i||*||j||)
-    private fun cosineSimilarity(firstWine: WineEntries, secondWine: WineEntries): Float {
+    private fun cosineSimilarity(firstWine: WineModel, secondWine: WineModel): Float {
         var dotProduct = 0
         var cosineBetweenFirstAndSecond = 0F
         val firstWineCharacteristics = firstWine.classification?.let {
