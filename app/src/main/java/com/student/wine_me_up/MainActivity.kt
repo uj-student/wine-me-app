@@ -23,6 +23,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -38,7 +39,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         supportActionBar?.setDisplayUseLogoEnabled(true)
         supportActionBar?.setIcon(R.drawable.ic_burger_icon)
-
 
 //        getWines()
 //        loadReviews()
@@ -65,7 +65,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val reviewList = getDistinctWines(output)
 
         CoroutineScope(Dispatchers.IO).launch {
-            saveReviewsToDb(reviewList)
+            withContext(Dispatchers.IO){
+                saveReviewsToDb(reviewList)
+            }
         }
     }
 

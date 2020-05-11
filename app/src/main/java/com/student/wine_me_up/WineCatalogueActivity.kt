@@ -37,14 +37,9 @@ class WineCatalogueActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             wineCatalogue = if (sourceOfData == SourceOfData.GLOBAL_API) {
                 BaseMethods.convertToWineModelSet(WineDatabase.getInstance(applicationContext).wineDao().getAllWines().toSet())
-
             } else {
                 BaseMethods.convertToWineReviewSet(WineDatabase.getInstance(applicationContext).wineDao().getAllReviews().toSet())
-
             }
-
-//            val adapter = GlobalWineDisplayAdapter(applicationContext, wineCatalogue.toList() as List<WineModel>)
-//            val ada = WineReviewDisplayAdapter(applicationContext, wineCatalogue.toList() as List<WineReviewsModel>)
 
             runOnUiThread {
                 displayList.adapter = if (sourceOfData == SourceOfData.GLOBAL_API) {

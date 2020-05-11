@@ -1,6 +1,5 @@
 package com.student.wine_me_up.wine_recommendation
 
-import com.student.wine_me_up.R
 import android.os.Bundle
 import android.view.View
 import android.view.animation.Animation
@@ -8,16 +7,20 @@ import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.chip.Chip
-import com.student.wine_me_up.utilities.WineDetailsFragment
+import com.student.wine_me_up.R
+import com.student.wine_me_up.models.SourceOfData
 import com.student.wine_me_up.models.WineModel
+import com.student.wine_me_up.models.WineReviewsModel
 import com.student.wine_me_up.utilities.BaseMethods.convertToWineModelSet
+import com.student.wine_me_up.utilities.BaseMethods.convertToWineReviewSet
 import com.student.wine_me_up.utilities.GlobalWineDisplayAdapter
+import com.student.wine_me_up.utilities.WineDetailsFragment
 import com.student.wine_me_up.wine_repo.WineDatabase
 import kotlinx.android.synthetic.main.activity_recommendation.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class RecommendationsActivity : AppCompatActivity() {
@@ -25,9 +28,12 @@ class RecommendationsActivity : AppCompatActivity() {
     private lateinit var slideUpAnimation: Animation
     private lateinit var slideDownAnimation: Animation
 
-    private lateinit var wineCategory: Set<WineModel>
+    private lateinit var wineCategory: Set<*>
     private lateinit var winePreferences: Set<String>
     private lateinit var wineRecommendationList: List<WineModel>
+
+    private lateinit var sourceOfData: SourceOfData
+    private lateinit var keyWords: Set<String>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,6 +44,8 @@ class RecommendationsActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.wine_types)
 
+        sourceOfData = intent.extras?.get("dataSource") as SourceOfData
+
         clWineRecommendations.visibility = View.GONE
 
         slideUpAnimation = AnimationUtils.loadAnimation(applicationContext, R.anim.slide_up)
@@ -45,14 +53,29 @@ class RecommendationsActivity : AppCompatActivity() {
 
 
         CoroutineScope(Dispatchers.IO).launch {
-            wineCategory =
-                convertToWineModelSet(WineDatabase.getInstance(applicationContext).wineDao().getAllWines().toSet())
-            val wineSet = getListOfCheckBoxes(wineCategory.toList())
+            if (sourceOfData == SourceOfData.GLOBAL_API) {
+                withContext(Dispatchers.IO) {
+                    val dbWines =
+                        WineDatabase.getInstance(applicationContext).wineDao().getAllWines().toSet()
+                    wineCategory =
+                        convertToWineModelSet(dbWines)
+                }
+                keyWords =
+                    getListOfCheckBoxesForGlobalScores(wineCategory.toList() as List<WineModel>)
+            } else {
+                withContext(Dispatchers.IO) {
+                    val dbReviews = WineDatabase.getInstance(applicationContext)
+                        .wineDao().getAllReviews().toSet()
+                    wineCategory =
+                        convertToWineReviewSet(dbReviews)
+                }
+                keyWords =
+                    getListOfCheckBoxesForReviews(wineCategory.toList() as List<WineReviewsModel>)
+            }
             runOnUiThread {
-                winePreferences = populateCheckBoxes(wineSet)
+                winePreferences = populateCheckBoxes(keyWords)
             }
         }
-
         setListener()
     }
 
@@ -61,7 +84,7 @@ class RecommendationsActivity : AppCompatActivity() {
         return true
     }
 
-    private fun getListOfCheckBoxes(wines: List<WineModel>?): Set<String> {
+    private fun getListOfCheckBoxesForGlobalScores(wines: List<WineModel>?): Set<String> {
         val wineCategoryList = mutableSetOf<String>()
         wines?.let {
             for (wine in it) {
@@ -82,6 +105,35 @@ class RecommendationsActivity : AppCompatActivity() {
         return wineCategoryList
     }
 
+    private fun getListOfCheckBoxesForReviews(reviews: List<WineReviewsModel>): Set<String> {
+        val reviewsOptions = mutableSetOf<String>()
+
+        for (review in reviews) {
+            if (!review.region_1.isNullOrEmpty()) {
+                reviewsOptions.add(review.region_1.capitalize())
+            }
+            if (!review.region_2.isNullOrEmpty()) {
+                reviewsOptions.add(review.region_2.capitalize())
+            }
+            if (!review.country.isNullOrEmpty()) {
+                reviewsOptions.add(review.country.capitalize())
+            }
+            if (!review.winery.isNullOrEmpty()) {
+                reviewsOptions.add(review.winery.capitalize())
+            }
+            if (!review.variety.isNullOrEmpty()) {
+                reviewsOptions.add(review.variety.capitalize())
+            }
+//            if (!review.description.isNullOrEmpty()){
+//                val desc = review.description.split(" ")
+//                for (i in desc) {
+//                    reviewsOptions.add(i)
+//                }
+//            }
+        }
+        return reviewsOptions
+    }
+
     private fun setListener() {
 
         removeAllButton.setOnClickListener {
@@ -100,10 +152,11 @@ class RecommendationsActivity : AppCompatActivity() {
 
                 CoroutineScope(Dispatchers.IO).launch {
                     wineRecommendationList =
-                        WineRecommendFactory(wineCategory.toList()).contentBasedFiltering(
+                        WineRecommendFactory(wineCategory.toList() as List<WineModel>).contentBasedFiltering(
                             winePreferences
                         )
-                    val adapter = GlobalWineDisplayAdapter(applicationContext, wineRecommendationList)
+                    val adapter =
+                        GlobalWineDisplayAdapter(applicationContext, wineRecommendationList)
                     runOnUiThread {
                         lvWineRecommendations.adapter = adapter
                     }
@@ -190,7 +243,6 @@ class RecommendationsActivity : AppCompatActivity() {
         }
         return preferences
     }
-
 
 
 //    private fun addFragment() {

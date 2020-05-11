@@ -1,7 +1,5 @@
 package com.student.wine_me_up.utilities
 
-import com.student.wine_me_up.R
-import com.student.wine_me_up.models.SourceOfData
 import com.student.wine_me_up.models.WineModel
 import com.student.wine_me_up.models.WineReviewsModel
 import com.student.wine_me_up.wine_repo.WineEntity
@@ -117,4 +115,13 @@ object BaseMethods {
             reviews.winery
         )
     }
+
+    fun splitString(description: String): String {
+        val arrSplit = description.split(" ")
+        for (i in arrSplit) {
+            println(i)
+        }
+        return arrSplit.toString()
+    }
+
 }
