@@ -58,7 +58,7 @@ class WineDetailsFragment(private val wineObject: WineModel) : Fragment() {
         if (details.isNullOrBlank()) {
             return String.format(label, getString(R.string.not_available))
         }
-        return String.format(getString(R.string.appellation_label), details)
+        return String.format(label, details)
 
     }
 }

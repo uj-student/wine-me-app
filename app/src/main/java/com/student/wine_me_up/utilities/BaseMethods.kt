@@ -99,7 +99,7 @@ object BaseMethods {
 
     fun convertReviewModelsToEntities(reviews: WineReviewsModel): WineReviewsEntity {
         return WineReviewsEntity(
-            1,
+            null,
             reviews.points,
             reviews.title,
             reviews.description,

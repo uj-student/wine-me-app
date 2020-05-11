@@ -28,21 +28,24 @@ class ReviewsActivity : AppCompatActivity() {
     }
 
 
-    private fun getJsonDataFromAsset(context: Context, fileName: String): String? {
-        val jsonString: String
-        try {
-            jsonString = context.assets.open(fileName).bufferedReader().use { it.readText() }
-        } catch (ioException: IOException) {
-            ioException.printStackTrace()
-            return null
+    companion object {
+        fun getJsonDataFromAsset(context: Context, fileName: String): String? {
+            val jsonString: String
+            try {
+                jsonString = context.assets.open(fileName).bufferedReader().use { it.readText() }
+            } catch (ioException: IOException) {
+                ioException.printStackTrace()
+                return null
+            }
+            Log.d("JSONSTRING: ", jsonString)
+            return jsonString
         }
-        return jsonString
-    }
 
-    private fun getDistinctWines(data: String): List<WineReviewsModel>? {
-        val reviews = object : TypeToken<List<WineReviewsModel>>() {}.type
-        return Gson().fromJson(data, reviews)
+        fun getDistinctWines(data: String?): List<WineReviewsModel>? {
+            val reviews = object : TypeToken<List<WineReviewsModel>>() {}.type
+            return Gson().fromJson(data, reviews)
 
+        }
     }
 
     private fun saveReviewsToDb(jsonReviews: List<WineReviewsModel>?) {
@@ -57,6 +60,7 @@ class ReviewsActivity : AppCompatActivity() {
             }
         }
     }
+
 
     fun retrieveReviews(): List<WineReviewsModel>? {
         GlobalScope.launch {

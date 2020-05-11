@@ -1,6 +1,7 @@
 package com.student.wine_me_up
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ListView
 import android.widget.Toast
@@ -8,10 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.chip.Chip
 import com.student.wine_me_up.models.SourceOfData
 import com.student.wine_me_up.models.WineReviewsModel
-import com.student.wine_me_up.utilities.BaseMethods
-import com.student.wine_me_up.utilities.GlobalWineDisplayAdapter
-import com.student.wine_me_up.utilities.WineDetailsFragment
-import com.student.wine_me_up.utilities.WineReviewDisplayAdapter
+import com.student.wine_me_up.utilities.*
 import com.student.wine_me_up.wine_repo.WineDao
 import com.student.wine_me_up.wine_repo.WineDatabase
 import kotlinx.android.synthetic.main.activity_wine_rating.*
@@ -25,7 +23,7 @@ class WineRatingActivity : AppCompatActivity() {
     private lateinit var displayList: ListView
     private lateinit var scoreChip: Chip
     private lateinit var confidenceChip: Chip
-    private lateinit var reviewerChip: Chip
+    private lateinit var reviewersChip: Chip
     private lateinit var primeursChip: Chip
 
     private lateinit var sortByScore: Set<WineEntries1>
@@ -50,7 +48,7 @@ class WineRatingActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         displayList = lvSortedWineList
         scoreChip = score_chip
-        reviewerChip = reviewers_chip
+        reviewersChip = reviewers_chip
         confidenceChip = confidence_chip
         primeursChip = primeurs_chip
 
@@ -65,7 +63,7 @@ class WineRatingActivity : AppCompatActivity() {
                 getReviewList()
             }
             confidenceChip.visibility = View.GONE
-            reviewerChip.visibility = View.GONE
+            reviewersChip.visibility = View.GONE
 
             scoreChip.text = "Points"
             primeursChip.text = "Price"
@@ -90,6 +88,14 @@ class WineRatingActivity : AppCompatActivity() {
     private fun getReviewList() {
         sortByPrice = BaseMethods.convertToWineReviewSet(accessDB().getHighestPrice().toSet())
         sortByPoints = BaseMethods.convertToWineReviewSet(accessDB().getTopPoints().toSet())
+
+        Log.d("SORTPRICE: ", sortByPoints.toString())
+
+        Log.d(
+            "Reviews: ",
+            "${BaseMethods.convertToWineReviewSet(accessDB().getAllReviews().toSet()).size}"
+        )
+
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -117,7 +123,7 @@ class WineRatingActivity : AppCompatActivity() {
                 checkIfResultsFound(sortByScore.toList())
             }
 
-            reviewerChip.setOnClickListener {
+            reviewersChip.setOnClickListener {
                 checkIfResultsFound(sortByReviewers.toList())
             }
 
@@ -133,18 +139,32 @@ class WineRatingActivity : AppCompatActivity() {
             }
         }
 
+        // TODO: need to refactor this if :)
         displayList.setOnItemClickListener { parent, view, position, id ->
-            var wineList = sortByScore
-            val fragmentTransaction = supportFragmentManager.beginTransaction()
-            if (confidenceChip.isSelected)
-                wineList = sortByConfidence
-            else if (reviewerChip.isSelected)
-                wineList = sortByReviewers
 
-            val wineDetails = WineDetailsFragment(wineList.toList()[position])
-            fragmentTransaction.add(R.id.clWineRating, wineDetails, null)
-            fragmentTransaction.addToBackStack(null)
-            fragmentTransaction.commit()
+            if (sourceOfData == SourceOfData.GLOBAL_API) {
+                var wineList = sortByScore
+                val fragmentTransaction = supportFragmentManager.beginTransaction()
+                if (confidenceChip.isChecked)
+                    wineList = sortByConfidence
+                else if (reviewersChip.isChecked)
+                    wineList = sortByReviewers
+
+                val wineDetails = WineDetailsFragment(wineList.toList()[position])
+                fragmentTransaction.add(R.id.clWineRating, wineDetails, null)
+                fragmentTransaction.addToBackStack(null)
+                fragmentTransaction.commit()
+            } else {
+                var wineList = sortByPoints
+                val fragmentTransaction = supportFragmentManager.beginTransaction()
+                if (primeursChip.isChecked)
+                    wineList = sortByPrice
+
+                val wineDetails = ReviewFragments(wineList.toList()[position])
+                fragmentTransaction.add(R.id.clWineRating, wineDetails, null)
+                fragmentTransaction.addToBackStack(null)
+                fragmentTransaction.commit()
+            }
         }
 
         backButton.setOnClickListener {
@@ -162,8 +182,6 @@ class WineRatingActivity : AppCompatActivity() {
 
             displayList.adapter = adapter
         }
-
-
     }
 
     fun ratingType(wines: List<WineEntries1>?, sortBy: String): Set<String> {

@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class WineReviewsEntity (
-    @PrimaryKey(autoGenerate = true)val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int? = null,
     @ColumnInfo(name = "points") val points: String?,
     @ColumnInfo(name = "title") val title: String?,
     @ColumnInfo(name = "description") val description: String?,

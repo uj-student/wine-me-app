@@ -14,8 +14,15 @@ import com.google.android.material.navigation.NavigationView
 import com.student.wine_me_up.models.SourceOfData
 import com.student.wine_me_up.models.WineReviewsModel
 import com.student.wine_me_up.network.ApiController
+import com.student.wine_me_up.utilities.BaseMethods
 import com.student.wine_me_up.wine_recommendation.RecommendationsActivity
+import com.student.wine_me_up.wine_recommendation.ReviewsActivity
+import com.student.wine_me_up.wine_recommendation.ReviewsActivity.Companion.getDistinctWines
+import com.student.wine_me_up.wine_repo.WineDatabase
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -33,7 +40,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         supportActionBar?.setIcon(R.drawable.ic_burger_icon)
 
 
-        //        getWines()
+//        getWines()
+//        loadReviews()
         ApiController._isNetworkDone.observe(this, Observer {
             it?.let {
                 if (it) {
@@ -47,6 +55,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         setListeners()
         iconInfo()
+    }
+
+    private fun loadReviews() {
+        val output = ReviewsActivity.getJsonDataFromAsset(
+            applicationContext,
+            fileName = "wine_reviewers.json"
+        )
+        val reviewList = getDistinctWines(output)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            saveReviewsToDb(reviewList)
+        }
+    }
+
+    private fun saveReviewsToDb(jsonReviews: List<WineReviewsModel>?) {
+        jsonReviews?.let {
+            for (review in it) {
+                Log.d("REVIEW: ", review.toString())
+                WineDatabase.getInstance(applicationContext).wineDao()
+                    .saveWineReview(
+                        BaseMethods.convertReviewModelsToEntities(review)
+                    )
+            }
+        }
     }
 
     private fun setDialog(show: Boolean) {
