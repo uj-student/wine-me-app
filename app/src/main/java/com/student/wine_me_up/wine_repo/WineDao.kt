@@ -35,7 +35,7 @@ interface WineDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveWineReview(wineReview: WineReviewsEntity)
 
-    @Query("Select * from WineReviewsEntity")
+    @Query("Select * from WineReviewsEntity order by title")
     fun getAllReviews(): List<WineReviewsEntity>
 
     @Query("select * from WineReviewsEntity order by points desc limit 20")

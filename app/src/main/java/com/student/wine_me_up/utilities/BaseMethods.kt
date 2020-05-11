@@ -1,5 +1,7 @@
 package com.student.wine_me_up.utilities
 
+import com.student.wine_me_up.R
+import com.student.wine_me_up.models.SourceOfData
 import com.student.wine_me_up.models.WineModel
 import com.student.wine_me_up.models.WineReviewsModel
 import com.student.wine_me_up.wine_repo.WineEntity

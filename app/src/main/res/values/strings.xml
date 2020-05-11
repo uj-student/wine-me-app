@@ -63,4 +63,6 @@
     <string name="province">Province: %s</string>
     <string name="country">Country: %s</string>
     <string name="winery">Winery: %s</string>
+    <string name="price">Price(ZAR): %s</string>
+
 </resources>
