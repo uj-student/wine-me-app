@@ -15,7 +15,8 @@ import com.student.wine_me_up.utilities.WineReviewDisplayAdapter
 import com.student.wine_me_up.wine_repo.WineDao
 import com.student.wine_me_up.wine_repo.WineDatabase
 import kotlinx.android.synthetic.main.activity_wine_rating.*
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import com.student.wine_me_up.models.WineModel as WineEntries1
 
@@ -56,11 +57,11 @@ class WineRatingActivity : AppCompatActivity() {
         setListeners()
 
         if (sourceOfData == SourceOfData.GLOBAL_API) {
-            GlobalScope.launch {
+            CoroutineScope(Dispatchers.IO).launch {
                 getGlobalWineLists()
             }
         } else {
-            GlobalScope.launch {
+            CoroutineScope(Dispatchers.IO).launch {
                 getReviewList()
             }
             confidenceChip.visibility = View.GONE

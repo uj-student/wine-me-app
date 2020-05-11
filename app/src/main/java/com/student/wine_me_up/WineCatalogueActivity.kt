@@ -9,7 +9,8 @@ import com.student.wine_me_up.utilities.BaseMethods
 import com.student.wine_me_up.utilities.GlobalWineDisplayAdapter
 import com.student.wine_me_up.wine_repo.WineDatabase
 import kotlinx.android.synthetic.main.activity_wine_catalogue.*
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
@@ -28,7 +29,7 @@ class WineCatalogueActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.wine_catalogue)
 
-        GlobalScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             displayList = wineListView
             val wineCatalogue =
                 BaseMethods.convertToWineModelSet(WineDatabase.getInstance(applicationContext).wineDao().getAllWines().toSet())

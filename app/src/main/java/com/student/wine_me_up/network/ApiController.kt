@@ -9,7 +9,8 @@ import com.google.gson.GsonBuilder
 import com.student.wine_me_up.models.LatestWineScoreResponse
 import com.student.wine_me_up.utilities.BaseMethods.convertWineEntriesToWine
 import com.student.wine_me_up.wine_repo.WineDatabase
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -63,7 +64,7 @@ open class ApiController {
                     Toast.makeText(context, "Network Call Successful", Toast.LENGTH_LONG).show()
                     val data = response.body()?.results
 
-                    GlobalScope.launch {
+                    CoroutineScope(Dispatchers.IO).launch {
                         data?.let {
                             for (wine in it) {
                                 WineDatabase.getInstance(context).wineDao()

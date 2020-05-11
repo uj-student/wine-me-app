@@ -14,13 +14,14 @@ import com.student.wine_me_up.utilities.BaseMethods.convertToWineModelSet
 import com.student.wine_me_up.utilities.GlobalWineDisplayAdapter
 import com.student.wine_me_up.wine_repo.WineDatabase
 import kotlinx.android.synthetic.main.activity_recommendation.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 
 class RecommendationsActivity : AppCompatActivity() {
 
-    //    val preferences = arrayOf("wine_type", "color", "classification", "appellation")
     private lateinit var slideUpAnimation: Animation
     private lateinit var slideDownAnimation: Animation
 
@@ -43,13 +44,7 @@ class RecommendationsActivity : AppCompatActivity() {
         slideDownAnimation = AnimationUtils.loadAnimation(applicationContext, R.anim.slide_down)
 
 
-//        if (recommendationActivity != null) {
-//            if (savedInstanceState != null) {
-//                return
-//            }
-//        }
-
-        GlobalScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             wineCategory =
                 convertToWineModelSet(WineDatabase.getInstance(applicationContext).wineDao().getAllWines().toSet())
             val wineSet = getListOfCheckBoxes(wineCategory.toList())
@@ -103,7 +98,7 @@ class RecommendationsActivity : AppCompatActivity() {
                 clWineRecommendations.visibility = View.VISIBLE
                 supportActionBar?.title = getString(R.string.wine_recommendations)
 
-                GlobalScope.launch {
+                CoroutineScope(Dispatchers.IO).launch {
                     wineRecommendationList =
                         WineRecommendFactory(wineCategory.toList()).contentBasedFiltering(
                             winePreferences
