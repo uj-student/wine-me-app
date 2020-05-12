@@ -13,7 +13,7 @@ interface INetworkManager {
     @Headers("Content-Type: application/json")
     fun getLatest(
         @Header("Authorization") token: String,
-        @Query("limit") limit: Int = 100,
-        @Query("offset") offset: Int = 10
+        @Query("limit") limit: Int = 500,
+        @Query("offset") offset: Int = 500
     ): Call<LatestWineScoreResponse>
 }

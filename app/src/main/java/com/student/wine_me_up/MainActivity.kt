@@ -16,8 +16,7 @@ import com.student.wine_me_up.models.WineReviewsModel
 import com.student.wine_me_up.network.ApiController
 import com.student.wine_me_up.utilities.BaseMethods
 import com.student.wine_me_up.wine_recommendation.RecommendationsActivity
-import com.student.wine_me_up.wine_recommendation.ReviewsActivity
-import com.student.wine_me_up.wine_recommendation.ReviewsActivity.Companion.getDistinctWines
+import com.student.wine_me_up.wine_recommendation.ReviewsManager
 import com.student.wine_me_up.wine_repo.WineDatabase
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
@@ -32,6 +31,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var dataSource = SourceOfData.GLOBAL_API
 
     private lateinit var dialog: Dialog
+    private val reviewsManager = ReviewsManager()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,8 +41,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         supportActionBar?.setDisplayUseLogoEnabled(true)
         supportActionBar?.setIcon(R.drawable.ic_burger_icon)
 
+
 //        getWines()
-//        loadReviews()
+        loadReviews()
         ApiController._isNetworkDone.observe(this, Observer {
             it?.let {
                 if (it) {
@@ -58,30 +60,40 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun loadReviews() {
-        val output = ReviewsActivity.getJsonDataFromAsset(
+        val output = reviewsManager.getJsonDataFromAsset(
             applicationContext,
             fileName = "wine_reviewers.json"
         )
-        val reviewList = getDistinctWines(output)
+        val reviewList = reviewsManager.convertToWineReviewsModels(output)
 
         CoroutineScope(Dispatchers.IO).launch {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 saveReviewsToDb(reviewList)
+            }
+        }
+
+        val reviews = reviewList?.let { reviewsManager.getDistinctReviews(it) }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            withContext(Dispatchers.IO) {
+                if (reviews != null) {
+                    ReviewsManager().saveReviewTypesToDb(this@MainActivity, reviews)
+                }
             }
         }
     }
 
     private fun saveReviewsToDb(jsonReviews: List<WineReviewsModel>?) {
         jsonReviews?.let {
-            for (review in it) {
-                Log.d("REVIEW: ", review.toString())
+            for (review in 0..500) { // grab the first 500
                 WineDatabase.getInstance(applicationContext).wineDao()
                     .saveWineReview(
-                        BaseMethods.convertReviewModelsToEntities(review)
+                        BaseMethods.convertReviewModelsToEntities(jsonReviews[review])
                     )
             }
         }
     }
+
 
     private fun setDialog(show: Boolean) {
         val builder = AlertDialog.Builder(this)

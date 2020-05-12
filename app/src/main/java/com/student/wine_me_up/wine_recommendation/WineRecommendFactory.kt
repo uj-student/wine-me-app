@@ -6,7 +6,7 @@ import kotlin.math.sqrt
 
 class WineRecommendFactory(private var wineList: List<WineModel>) {
 
-    private val displayLimit = 10
+    private val displayLimit = 20
     fun contentBasedFiltering(userWinePreferences: Set<String>): List<WineModel> {
         val wineList = filterWineList(userWinePreferences)
         val wineAndCosine = LinkedHashMap<List<WineModel>, Float>()
@@ -33,10 +33,6 @@ class WineRecommendFactory(private var wineList: List<WineModel>) {
                 break
         }
         return returnObject.toList()
-    }
-
-    fun collaborativeFiltering(){
-
     }
 
     //    preferences => [wine_type, color, classification, appellation]
@@ -85,8 +81,10 @@ class WineRecommendFactory(private var wineList: List<WineModel>) {
 
             cosineBetweenFirstAndSecond = dotProduct / (i * j)
         }
-
         return cosineBetweenFirstAndSecond
+    }
+
+    fun collaborativeFiltering(){
 
     }
 }

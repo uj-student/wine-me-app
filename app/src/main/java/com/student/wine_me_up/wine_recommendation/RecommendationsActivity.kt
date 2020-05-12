@@ -10,9 +10,7 @@ import com.google.android.material.chip.Chip
 import com.student.wine_me_up.R
 import com.student.wine_me_up.models.SourceOfData
 import com.student.wine_me_up.models.WineModel
-import com.student.wine_me_up.models.WineReviewsModel
 import com.student.wine_me_up.utilities.BaseMethods.convertToWineModelSet
-import com.student.wine_me_up.utilities.BaseMethods.convertToWineReviewSet
 import com.student.wine_me_up.utilities.GlobalWineDisplayAdapter
 import com.student.wine_me_up.utilities.WineDetailsFragment
 import com.student.wine_me_up.wine_repo.WineDatabase
@@ -28,7 +26,7 @@ class RecommendationsActivity : AppCompatActivity() {
     private lateinit var slideUpAnimation: Animation
     private lateinit var slideDownAnimation: Animation
 
-    private lateinit var wineCategory: Set<*>
+    private lateinit var wineCategory: Set<WineModel>
     private lateinit var winePreferences: Set<String>
     private lateinit var wineRecommendationList: List<WineModel>
 
@@ -61,16 +59,12 @@ class RecommendationsActivity : AppCompatActivity() {
                         convertToWineModelSet(dbWines)
                 }
                 keyWords =
-                    getListOfCheckBoxesForGlobalScores(wineCategory.toList() as List<WineModel>)
+                    getListOfCheckBoxesForGlobalScores(wineCategory.toList())
             } else {
                 withContext(Dispatchers.IO) {
-                    val dbReviews = WineDatabase.getInstance(applicationContext)
-                        .wineDao().getAllReviews().toSet()
-                    wineCategory =
-                        convertToWineReviewSet(dbReviews)
+                    keyWords = WineDatabase.getInstance(applicationContext)
+                        .wineDao().getReviewTypes().toSet()
                 }
-                keyWords =
-                    getListOfCheckBoxesForReviews(wineCategory.toList() as List<WineReviewsModel>)
             }
             runOnUiThread {
                 winePreferences = populateCheckBoxes(keyWords)
@@ -105,35 +99,6 @@ class RecommendationsActivity : AppCompatActivity() {
         return wineCategoryList
     }
 
-    private fun getListOfCheckBoxesForReviews(reviews: List<WineReviewsModel>): Set<String> {
-        val reviewsOptions = mutableSetOf<String>()
-
-        for (review in reviews) {
-            if (!review.region_1.isNullOrEmpty()) {
-                reviewsOptions.add(review.region_1.capitalize())
-            }
-            if (!review.region_2.isNullOrEmpty()) {
-                reviewsOptions.add(review.region_2.capitalize())
-            }
-            if (!review.country.isNullOrEmpty()) {
-                reviewsOptions.add(review.country.capitalize())
-            }
-            if (!review.winery.isNullOrEmpty()) {
-                reviewsOptions.add(review.winery.capitalize())
-            }
-            if (!review.variety.isNullOrEmpty()) {
-                reviewsOptions.add(review.variety.capitalize())
-            }
-//            if (!review.description.isNullOrEmpty()){
-//                val desc = review.description.split(" ")
-//                for (i in desc) {
-//                    reviewsOptions.add(i)
-//                }
-//            }
-        }
-        return reviewsOptions
-    }
-
     private fun setListener() {
 
         removeAllButton.setOnClickListener {
@@ -151,22 +116,24 @@ class RecommendationsActivity : AppCompatActivity() {
                 supportActionBar?.title = getString(R.string.wine_recommendations)
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    wineRecommendationList =
-                        WineRecommendFactory(wineCategory.toList() as List<WineModel>).contentBasedFiltering(
-                            winePreferences
-                        )
-                    val adapter =
-                        GlobalWineDisplayAdapter(applicationContext, wineRecommendationList)
-                    runOnUiThread {
-                        lvWineRecommendations.adapter = adapter
+                    if (sourceOfData == SourceOfData.GLOBAL_API) {
+                        wineRecommendationList =
+                            WineRecommendFactory(wineCategory.toList()).contentBasedFiltering(
+                                winePreferences
+                            )
+                        val adapter =
+                            GlobalWineDisplayAdapter(applicationContext, wineRecommendationList)
+                        runOnUiThread {
+                            lvWineRecommendations.adapter = adapter
+                        }
+                    } else {
+                        // TODO: pass review data to recommendation factory
                     }
                 }
-
             } else {
                 Toast.makeText(this, "Please select at least one item", Toast.LENGTH_SHORT).show()
             }
         }
-
 
         lvWineRecommendations.setOnItemClickListener { parent, view, position, id ->
 
@@ -243,13 +210,4 @@ class RecommendationsActivity : AppCompatActivity() {
         }
         return preferences
     }
-
-
-//    private fun addFragment() {
-//        val recommendation = WineDetailsFragment()
-//        val fragmentTransaction = supportFragmentManager.beginTransaction()
-//        fragmentTransaction.replace(R.id.wineCategoryChipGroup, recommendation, null)
-//        fragmentTransaction.addToBackStack(null)
-//        fragmentTransaction.commit()
-//    }
 }

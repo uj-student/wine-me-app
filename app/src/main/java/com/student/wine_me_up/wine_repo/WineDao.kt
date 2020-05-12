@@ -4,12 +4,13 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.student.wine_me_up.models.ReviewTypeDescription
 import com.student.wine_me_up.models.WineReviewsModel
 
 @Dao
 interface WineDao {
 
-    //    WineEntity Queries
+    // WineEntity Queries
     @Query("Select * from WineEntity")
     fun getAllWines(): List<WineEntity>
 
@@ -31,16 +32,24 @@ interface WineDao {
     @Query("select * from WineEntity limit 1")
     fun isDatabasePopulated(): WineEntity?
 
-    //    Reviewer Queries
+    // Reviewer Queries
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveWineReview(wineReview: WineReviewsEntity)
 
     @Query("Select * from WineReviewsEntity order by title")
     fun getAllReviews(): List<WineReviewsEntity>
 
-    @Query("select * from WineReviewsEntity order by points desc limit 20")
+    @Query("select * from WineReviewsEntity order by points desc limit 10")
     fun getTopPoints(): List<WineReviewsEntity>
 
     @Query("select * from WineReviewsEntity order by price desc limit 20")
     fun getHighestPrice(): List<WineReviewsEntity>
+
+    // ReviewType / Description
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun saveReviewTypes(reviewTypeDescription: ReviewTypeEntity)
+
+    @Query("select type_description from ReviewTypeEntity")
+    fun getReviewTypes(): List<String>
+
 }
