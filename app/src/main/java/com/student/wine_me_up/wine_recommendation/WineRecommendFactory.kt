@@ -1,10 +1,11 @@
 package com.student.wine_me_up.wine_recommendation
 
 import com.student.wine_me_up.models.WineModel
+import com.student.wine_me_up.models.WineReviewsModel
 import kotlin.math.sqrt
 
 
-class WineRecommendFactory(private var wineList: List<WineModel>) {
+class WineRecommendFactory(private var wineList: List<*>) {
 
     private val displayLimit = 20
     fun contentBasedFiltering(userWinePreferences: Set<String>): List<WineModel> {
@@ -16,19 +17,21 @@ class WineRecommendFactory(private var wineList: List<WineModel>) {
         for (wine in wineList.indices) {
             for (wine2 in wine + 1 until wineList.size) {
                 val winePairs = listOf(wineList.elementAt(wine), wineList.elementAt(wine2))
-                wineAndCosine[winePairs] = cosineSimilarity(wineList.elementAt(wine), wineList.elementAt(wine2))
+                wineAndCosine[winePairs] =
+                    cosineSimilarity(wineList.elementAt(wine), wineList.elementAt(wine2))
             }
         }
 
         // sort wineAndCosine in descending order of float value get the top 10
-        val sortedByCount = wineAndCosine.toList().sortedByDescending { (_, value) -> value}.toMap()
+        val sortedByCount =
+            wineAndCosine.toList().sortedByDescending { (_, value) -> value }.toMap()
 
 
         var count = 0
         for (i in sortedByCount) {
             returnObject.add(i.key[0])
             returnObject.add(i.key[1])
-            count ++
+            count++
             if (count > displayLimit)
                 break
         }
@@ -40,7 +43,7 @@ class WineRecommendFactory(private var wineList: List<WineModel>) {
     private fun filterWineList(userWinePreferences: Set<String>): Set<WineModel> {
         val returnObject = mutableListOf<WineModel>()
 
-        for (wine in wineList) {
+        for (wine in wineList as List<WineModel>) {
             if (wine.wine_type in userWinePreferences || wine.color in userWinePreferences
                 || wine.classification in userWinePreferences || wine.appellation in userWinePreferences
             ) {
@@ -84,7 +87,32 @@ class WineRecommendFactory(private var wineList: List<WineModel>) {
         return cosineBetweenFirstAndSecond
     }
 
-    fun collaborativeFiltering(){
+    private fun collaborativeFiltering(filteredReviewList: List<WineReviewsModel>): Set<WineReviewsModel> {
+        return filteredReviewList.sortedByDescending { it.points }.toSet()
 
     }
+
+    fun filterReviewList(userWinePreferences: Set<String>): Set<WineReviewsModel> {
+        val returnObject = mutableSetOf<WineReviewsModel>()
+
+        // filtered list with user preference
+        for (wine in wineList as List<WineReviewsModel>) {
+            if (wine.variety in userWinePreferences || wine.winery in userWinePreferences ||
+                wine.country in userWinePreferences || wine.variety in userWinePreferences
+            )
+                returnObject.add(wine)
+        }
+
+        for (userPreference in userWinePreferences) {
+            for (wine in wineList as List<WineReviewsModel>){
+                if (!wine.description.isNullOrEmpty() && wine.description.contains(userPreference)){
+                    returnObject.add(wine)
+                }
+            }
+        }
+
+
+        return collaborativeFiltering(returnObject.toList())
+    }
+
 }

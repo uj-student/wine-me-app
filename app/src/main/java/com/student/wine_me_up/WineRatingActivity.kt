@@ -142,24 +142,25 @@ class WineRatingActivity : AppCompatActivity() {
         // TODO: need to refactor this if :)
         displayList.setOnItemClickListener { parent, view, position, id ->
 
+            val fragmentTransaction = supportFragmentManager.beginTransaction()
+
             if (sourceOfData == SourceOfData.GLOBAL_API) {
                 var wineList = sortByScore
-                val fragmentTransaction = supportFragmentManager.beginTransaction()
-                if (confidenceChip.isChecked)
+                if (confidenceChip.isChecked) {
                     wineList = sortByConfidence
-                else if (reviewersChip.isChecked)
+                } else if (reviewersChip.isChecked) {
                     wineList = sortByReviewers
+                }
 
                 val wineDetails = WineDetailsFragment(wineList.toList()[position])
-                fragmentTransaction.add(R.id.clWineRating, wineDetails, null)
+                fragmentTransaction.replace(R.id.clWineRating, wineDetails, null)
                 fragmentTransaction.addToBackStack(null)
                 fragmentTransaction.commit()
             } else {
                 var wineList = sortByPoints
-                val fragmentTransaction = supportFragmentManager.beginTransaction()
-                if (primeursChip.isChecked)
+                if (primeursChip.isChecked) {
                     wineList = sortByPrice
-
+                }
                 val wineDetails = ReviewFragments(wineList.toList()[position])
                 fragmentTransaction.add(R.id.clWineRating, wineDetails, null)
                 fragmentTransaction.addToBackStack(null)

@@ -1,21 +1,26 @@
 package com.student.wine_me_up.wine_recommendation
 
 import android.content.Context
-import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.student.wine_me_up.models.WineReviewsModel
-import com.student.wine_me_up.utilities.BaseMethods.convertToReviewModelSet
 import com.student.wine_me_up.wine_repo.ReviewTypeEntity
 import com.student.wine_me_up.wine_repo.WineDatabase
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.io.IOException
 
 
 class ReviewsManager {
 
     private lateinit var wineReviews: List<WineReviewsModel>
+
+    companion object {
+        val isJsonDone = MutableLiveData<Boolean>()
+        val _isJsonDone: LiveData<Boolean>
+            get() = isJsonDone
+    }
+
 
     fun getJsonDataFromAsset(context: Context, fileName: String): String? {
         val jsonString: String
@@ -34,46 +39,36 @@ class ReviewsManager {
 
     }
 
-
-    fun retrieveReviews(context: Context): List<WineReviewsModel>? {
-        GlobalScope.launch {
-            wineReviews =
-                convertToReviewModelSet(WineDatabase.getInstance(context).wineDao().getAllReviews())
-
-            Log.d("REVIEWS: ", wineReviews[0].toString())
-        }
-        return wineReviews
-    }
-
-    fun getDistinctReviews(reviews: List<WineReviewsModel>): Set<ReviewTypeEntity> {
+    fun getDistinctReviews(reviews: List<WineReviewsModel>?): Set<ReviewTypeEntity> {
         val reviewsOptions = mutableSetOf<ReviewTypeEntity>()
 
-        for (review in reviews) {
-            if (!review.region_1.isNullOrEmpty()) {
-                reviewsOptions.add(ReviewTypeEntity(null, review.region_1.capitalize()))
-            }
-            if (!review.country.isNullOrEmpty()) {
-                reviewsOptions.add(ReviewTypeEntity(null, review.country.capitalize()))
-            }
-            if (!review.winery.isNullOrEmpty()) {
-                reviewsOptions.add(ReviewTypeEntity(null, review.winery.capitalize()))
-            }
-            if (!review.variety.isNullOrEmpty()) {
-                reviewsOptions.add(ReviewTypeEntity(null, review.variety.capitalize()))
-            }
-            if (!review.description.isNullOrEmpty()) {
-                val desc = review.description.split(" ")
-                for (i in desc) {
-                    val entry = i.trim().replace(".", "").replace(",", "")
-                    if (!entry.contains("'")) {
-                        if (entry.length > 2) {
-                            reviewsOptions.add(ReviewTypeEntity(null, entry.capitalize()))
+        if (reviews != null) {
+            for (review in reviews) {
+                if (!review.region_1.isNullOrEmpty()) {
+                    reviewsOptions.add(ReviewTypeEntity(null, review.region_1.capitalize()))
+                }
+                if (!review.country.isNullOrEmpty()) {
+                    reviewsOptions.add(ReviewTypeEntity(null, review.country.capitalize()))
+                }
+                if (!review.winery.isNullOrEmpty()) {
+                    reviewsOptions.add(ReviewTypeEntity(null, review.winery.capitalize()))
+                }
+                if (!review.variety.isNullOrEmpty()) {
+                    reviewsOptions.add(ReviewTypeEntity(null, review.variety.capitalize()))
+                }
+                if (!review.description.isNullOrEmpty()) {
+                    val desc = review.description.split(" ")
+                    for (i in desc) {
+                        val entry = i.trim().replace(".", "").replace(",", "")
+                        if (!entry.contains("'")) {
+                            if (entry.length > 2) {
+                                reviewsOptions.add(ReviewTypeEntity(null, entry.capitalize()))
+                            }
                         }
                     }
                 }
             }
         }
-
         return reviewsOptions
     }
 

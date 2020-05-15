@@ -1,9 +1,10 @@
 package com.student.wine_me_up
 
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.widget.Toast
@@ -17,15 +18,17 @@ import com.student.wine_me_up.network.ApiController
 import com.student.wine_me_up.utilities.BaseMethods
 import com.student.wine_me_up.wine_recommendation.RecommendationsActivity
 import com.student.wine_me_up.wine_recommendation.ReviewsManager
+import com.student.wine_me_up.wine_recommendation.ReviewsManager.Companion.isJsonDone
 import com.student.wine_me_up.wine_repo.WineDatabase
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
+    private lateinit var sharedPreferences: SharedPreferences
+    private val networkCallTAG = "networkCallDone"
+    private val jsonReviewTAG = "jsonSaveDone"
 
     private lateinit var wineReviews: List<WineReviewsModel>
     private var dataSource = SourceOfData.GLOBAL_API
@@ -40,45 +43,63 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         supportActionBar?.setDisplayUseLogoEnabled(true)
         supportActionBar?.setIcon(R.drawable.ic_burger_icon)
+        sharedPreferences = getSharedPreferences(networkCallTAG, Context.MODE_PRIVATE)
 
+        if (!sharedPreferences.contains("network")) {
+            getWines()
+            val editor = sharedPreferences.edit()
+            editor.putString("network", networkCallTAG)
+            editor.apply()
+        }
 
-//        getWines()
-        loadReviews()
-        ApiController._isNetworkDone.observe(this, Observer {
-            it?.let {
-                if (it) {
-                    Log.d("DIALOG: ", it.toString())
-                    if (dialog.isShowing) {
-                        dialog.dismiss()
-                    }
-                }
-            }
-        })
+        if (!sharedPreferences.contains("json")) {
+            loadReviews()
+            val editor = sharedPreferences.edit()
+            editor.putString("json", jsonReviewTAG)
+            editor.apply()
+        }
 
         setListeners()
         iconInfo()
     }
 
     private fun loadReviews() {
+        ReviewsManager._isJsonDone.observe(this, Observer {
+            it?.let {
+                if (it) {
+                    if (dialog.isShowing) {
+                        dialog.dismiss()
+                    }
+                }
+            }
+        })
+        setDialog(true)
         val output = reviewsManager.getJsonDataFromAsset(
             applicationContext,
             fileName = "wine_reviewers.json"
         )
-        val reviewList = reviewsManager.convertToWineReviewsModels(output)
-
-        CoroutineScope(Dispatchers.IO).launch {
-            withContext(Dispatchers.IO) {
-                saveReviewsToDb(reviewList)
+        val reviewList = CoroutineScope(Dispatchers.Default).async {
+            withContext(Dispatchers.Main) {
+                isJsonDone.postValue(false)
+                reviewsManager.convertToWineReviewsModels(output)
             }
         }
 
-        val reviews = reviewList?.let { reviewsManager.getDistinctReviews(it) }
 
         CoroutineScope(Dispatchers.IO).launch {
             withContext(Dispatchers.IO) {
-                if (reviews != null) {
-                    ReviewsManager().saveReviewTypesToDb(this@MainActivity, reviews)
+                saveReviewsToDb(reviewList.await())
+                if (dialog.isShowing) {
+                    dialog.dismiss()
                 }
+            }
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            withContext(Dispatchers.IO) {
+                val reviews = reviewsManager.getDistinctReviews(reviewList.await())
+                ReviewsManager().saveReviewTypesToDb(this@MainActivity, reviews)
+                isJsonDone.postValue(true)
             }
         }
     }
@@ -99,8 +120,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val builder = AlertDialog.Builder(this)
         val inflater = LayoutInflater.from(this@MainActivity)
         val vl = inflater.inflate(R.layout.progress_bar, null)
-//        val message = vl.findViewById(R.id.loadingMsg)
-//        message.setText(display_message)
+//        val message = vl.findViewById(R.id.loadinMsg)
+//        message.setText("Hello")
         builder.setView(vl)
         dialog = builder.create()
         if (show) {
@@ -145,11 +166,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         refreshFloatingButton.setOnClickListener {
             getWines()
-//            setDialog(false)
         }
     }
 
     private fun getWines() {
+        ApiController._isNetworkDone.observe(this, Observer {
+            it?.let {
+                if (it) {
+                    if (dialog.isShowing) {
+                        dialog.dismiss()
+                    }
+                }
+            }
+        })
         setDialog(true)
         ApiController().makeCall(applicationContext)
     }

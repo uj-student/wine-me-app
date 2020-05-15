@@ -20,7 +20,7 @@ interface WineDao {
     @Query("Select * from WineEntity order by journalist_count desc limit 10")
     fun getTopNumberOfReviewers(): List<WineEntity>
 
-    @Query("Select * from WineEntity order by confidence_index desc limit 10")
+    @Query("Select * from WineEntity order by confidence_index asc limit 10")
     fun getHighestConfidence(): List<WineEntity>
 
     @Query("Select * from WineEntity where is_primeurs = 1 order by confidence_index desc limit 10")
@@ -49,7 +49,7 @@ interface WineDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveReviewTypes(reviewTypeDescription: ReviewTypeEntity)
 
-    @Query("select type_description from ReviewTypeEntity")
+    @Query("select type_description from ReviewTypeEntity Limit 100")
     fun getReviewTypes(): List<String>
 
 }

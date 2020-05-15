@@ -52,40 +52,44 @@ open class ApiController {
 
     fun makeCall(context: Context) {
         val wineApi: INetworkManager = networkClient().create(INetworkManager::class.java)
+        CoroutineScope(Dispatchers.IO).launch {
+            isNetworkDone.postValue(false)
 
-        val call = wineApi.getLatest("Token $token")
-        isNetworkDone.postValue(false)
-        call.enqueue(object : Callback<LatestWineScoreResponse> {
-            override fun onResponse(
-                call: Call<LatestWineScoreResponse>,
-                response: Response<LatestWineScoreResponse>
-            ) {
-                if (response.code() == 200) {
-                    Toast.makeText(context, "Network Call Successful", Toast.LENGTH_LONG).show()
-                    val data = response.body()?.results
+            val call = wineApi.getLatest("Token $token")
+            call.enqueue(object : Callback<LatestWineScoreResponse> {
+                override fun onResponse(
+                    call: Call<LatestWineScoreResponse>,
+                    response: Response<LatestWineScoreResponse>
+                ) {
+                    if (response.code() == 200) {
+                        Toast.makeText(context, "Network Call Successful", Toast.LENGTH_LONG).show()
+                        val data = response.body()?.results
 
-                    CoroutineScope(Dispatchers.IO).launch {
-                        data?.let {
-                            for (wine in it) {
-                                WineDatabase.getInstance(context).wineDao()
-                                    .saveWine(
-                                        convertWineEntriesToWine(
-                                            wine
+                        CoroutineScope(Dispatchers.IO).launch {
+                            data?.let {
+                                for (wine in it) {
+                                    WineDatabase.getInstance(context).wineDao()
+                                        .saveWine(
+                                            convertWineEntriesToWine(
+                                                wine
+                                            )
                                         )
-                                    )
+                                }
                             }
                         }
+                        Toast.makeText(context, "Saving to DB Successful", Toast.LENGTH_LONG).show()
+                        isNetworkDone.postValue(true)
                     }
-                    Toast.makeText(context, "Saving to DB Successful", Toast.LENGTH_LONG).show()
-                    isNetworkDone.postValue(true)
                 }
-            }
 
-            override fun onFailure(call: Call<LatestWineScoreResponse>, t: Throwable) {
-                Toast.makeText(context, "${t.message}", Toast.LENGTH_LONG).show()
-                t.printStackTrace()
-                // Unable to resolve host "api.globalwinescore.com"
-            }
-        })
+                override fun onFailure(call: Call<LatestWineScoreResponse>, t: Throwable) {
+                    Toast.makeText(context, "${t.message}", Toast.LENGTH_LONG).show()
+                    t.printStackTrace()
+                    // Unable to resolve host "api.globalwinescore.com"
+                    isNetworkDone.postValue(true)
+
+                }
+            })
+        }
     }
 }
