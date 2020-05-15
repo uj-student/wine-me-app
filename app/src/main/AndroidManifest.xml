@@ -8,14 +8,16 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:largeHeap="true"
         android:allowBackup="true"
+        android:hardwareAccelerated="false"
         android:icon="@drawable/ic_wine_1"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launch_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".MainActivity"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
@@ -25,8 +27,7 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".WineCatalogueActivity"/>
+        <activity android:name=".WineCatalogueActivity" />
 
         <activity android:name=".wine_recommendation.RecommendationsActivity" />
 

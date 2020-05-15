@@ -49,4 +49,20 @@
     <string name="score_label">Score: %s</string>
     <string name="confidence_label">Confidence: %s</string>
     <string name="reviewer_count_label">Number of Reviews: %s</string>
+    <string name="global_scores">Global Scores</string>
+    <string name="twitter_reviewers">Twitter Reviewers</string>
+
+    <string name="points">Points: %s</string>
+    <string name="description">Description: %s</string>
+    <string name="taster_name">Taster Name: %s</string>
+    <string name="taster_twitter_handle">Twitter Handle: %s</string>
+    <string name="designation">Designation: %s</string>
+    <string name="variety">Variety: %s</string>
+    <string name="region_1">Region 1: %s</string>
+    <string name="region_2">Region 2: %s</string>
+    <string name="province">Province: %s</string>
+    <string name="country">Country: %s</string>
+    <string name="winery">Winery: %s</string>
+    <string name="price">Price(ZAR): %s</string>
+
 </resources>
