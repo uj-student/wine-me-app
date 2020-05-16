@@ -1,5 +1,6 @@
 package com.student.wine_me_up
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -36,10 +37,14 @@ class WineRatingActivity : AppCompatActivity() {
 
     private lateinit var sourceOfData: SourceOfData
 
+    private val fragmentTransaction = supportFragmentManager.beginTransaction()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_wine_rating)
+
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         sourceOfData = intent.extras?.get("dataSource") as SourceOfData
 
@@ -71,14 +76,15 @@ class WineRatingActivity : AppCompatActivity() {
     }
 
     private fun getGlobalWineLists() {
-        sortByScore =
-            BaseMethods.convertToWineModelSet(accessDB().getTopScoreWine().toSet())
-        sortByConfidence =
-            BaseMethods.convertToWineModelSet(accessDB().getHighestConfidence().toSet())
-        sortByReviewers =
-            BaseMethods.convertToWineModelSet(accessDB().getTopNumberOfReviewers().toSet())
-        sortByPrimeurs =
-            BaseMethods.convertToWineModelSet(accessDB().getPrimeurs().toSet())
+        val db = accessDB()
+
+        sortByScore = BaseMethods.convertToWineModelSet(db.getTopScoreWine().toSet())
+
+        sortByConfidence = BaseMethods.convertToWineModelSet(db.getHighestConfidence().toSet())
+
+        sortByReviewers = BaseMethods.convertToWineModelSet(db.getTopNumberOfReviewers().toSet())
+
+        sortByPrimeurs = BaseMethods.convertToWineModelSet(db.getPrimeurs().toSet())
     }
 
     private fun accessDB(): WineDao {
@@ -88,14 +94,6 @@ class WineRatingActivity : AppCompatActivity() {
     private fun getReviewList() {
         sortByPrice = BaseMethods.convertToWineReviewSet(accessDB().getHighestPrice().toSet())
         sortByPoints = BaseMethods.convertToWineReviewSet(accessDB().getTopPoints().toSet())
-
-        Log.d("SORTPRICE: ", sortByPoints.toString())
-
-        Log.d(
-            "Reviews: ",
-            "${BaseMethods.convertToWineReviewSet(accessDB().getAllReviews().toSet()).size}"
-        )
-
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -142,8 +140,6 @@ class WineRatingActivity : AppCompatActivity() {
         // TODO: need to refactor this if :)
         displayList.setOnItemClickListener { parent, view, position, id ->
 
-            val fragmentTransaction = supportFragmentManager.beginTransaction()
-
             if (sourceOfData == SourceOfData.GLOBAL_API) {
                 var wineList = sortByScore
                 if (confidenceChip.isChecked) {
@@ -161,8 +157,8 @@ class WineRatingActivity : AppCompatActivity() {
                 if (primeursChip.isChecked) {
                     wineList = sortByPrice
                 }
-                val wineDetails = ReviewFragments(wineList.toList()[position])
-                fragmentTransaction.add(R.id.clWineRating, wineDetails, null)
+                val wineDetails = ReviewFragments.newInstance(wineList.toList()[position])
+                fragmentTransaction.replace(R.id.clWineRating, wineDetails, null)
                 fragmentTransaction.addToBackStack(null)
                 fragmentTransaction.commit()
             }

@@ -1,5 +1,7 @@
 package com.student.wine_me_up.models
 
+import java.io.Serializable
+
 data class WineReviewsModel (
     val points: String?,
     val title: String?,
@@ -14,4 +16,4 @@ data class WineReviewsModel (
     val province: String?,
     val country: String?,
     val winery: String?
-)
+) : Serializable
