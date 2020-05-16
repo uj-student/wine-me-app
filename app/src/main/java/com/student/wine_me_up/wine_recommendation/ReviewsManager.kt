@@ -23,6 +23,7 @@ class ReviewsManager {
 
     fun getJsonDataFromAsset(context: Context, fileName: String): String? {
         val jsonString: String
+        isJsonDone.postValue(false)
         try {
             jsonString = context.assets.open(fileName).bufferedReader().use { it.readText() }
         } catch (ioException: IOException) {

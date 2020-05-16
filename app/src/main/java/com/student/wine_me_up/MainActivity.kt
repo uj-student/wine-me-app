@@ -62,6 +62,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val editor = sharedPreferences.edit()
             editor.putString("json", jsonReviewTAG)
             editor.apply()
+            isJsonDone.postValue(true)
         }
 
         setListeners()
@@ -69,16 +70,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun loadReviews() {
-        ReviewsManager._isJsonDone.observe(this, Observer {
-            it?.let {
-                if (it) {
-                    if (dialog.isShowing) {
-                        dialog.dismiss()
-                   }
-                }
-            }
-        })
-        setDialog(true)
 
         val output = reviewsManager.getJsonDataFromAsset(
             applicationContext,
@@ -86,7 +77,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
 
         val reviewList = CoroutineScope(Dispatchers.Default).async {
-            isJsonDone.postValue(false)
             reviewsManager.convertToWineReviewsModels(output)
         }
 
@@ -100,7 +90,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         CoroutineScope(Dispatchers.IO).launch {
             ReviewsManager().saveReviewTypesToDb(this@MainActivity, reviews.await())
-            isJsonDone.postValue(true)
         }
     }
 
@@ -112,7 +101,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         BaseMethods.convertReviewModelsToEntities(jsonReviews[review])
                     )
             }
-            isJsonDone.postValue(true)
         }
     }
 
