@@ -60,7 +60,7 @@
     <string name="variety">Variety: %s</string>
     <string name="region_1">Region 1: %s</string>
     <string name="region_2">Region 2: %s</string>
-    <string name="province">Province: %s</string>
+    <string name="origin">Origin: %s</string>
     <string name="country">Country: %s</string>
     <string name="winery">Winery: %s</string>
     <string name="price">Price(ZAR): %s</string>

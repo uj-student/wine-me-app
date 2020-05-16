@@ -4,7 +4,9 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.widget.Toast
@@ -21,7 +23,10 @@ import com.student.wine_me_up.wine_recommendation.ReviewsManager
 import com.student.wine_me_up.wine_recommendation.ReviewsManager.Companion.isJsonDone
 import com.student.wine_me_up.wine_repo.WineDatabase
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -30,7 +35,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val networkCallTAG = "networkCallDone"
     private val jsonReviewTAG = "jsonSaveDone"
 
-    private lateinit var wineReviews: List<WineReviewsModel>
     private var dataSource = SourceOfData.GLOBAL_API
 
     private lateinit var dialog: Dialog
@@ -40,6 +44,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         supportActionBar?.setDisplayUseLogoEnabled(true)
         supportActionBar?.setIcon(R.drawable.ic_burger_icon)
@@ -57,6 +62,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val editor = sharedPreferences.edit()
             editor.putString("json", jsonReviewTAG)
             editor.apply()
+            isJsonDone.postValue(true)
         }
 
         setListeners()
@@ -64,43 +70,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun loadReviews() {
-        ReviewsManager._isJsonDone.observe(this, Observer {
-            it?.let {
-                if (it) {
-                    if (dialog.isShowing) {
-                        dialog.dismiss()
-                    }
-                }
-            }
-        })
-        setDialog(true)
+
         val output = reviewsManager.getJsonDataFromAsset(
             applicationContext,
             fileName = "wine_reviewers.json"
         )
+
         val reviewList = CoroutineScope(Dispatchers.Default).async {
-            withContext(Dispatchers.Main) {
-                isJsonDone.postValue(false)
-                reviewsManager.convertToWineReviewsModels(output)
-            }
-        }
-
-
-        CoroutineScope(Dispatchers.IO).launch {
-            withContext(Dispatchers.IO) {
-                saveReviewsToDb(reviewList.await())
-                if (dialog.isShowing) {
-                    dialog.dismiss()
-                }
-            }
+            reviewsManager.convertToWineReviewsModels(output)
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            withContext(Dispatchers.IO) {
-                val reviews = reviewsManager.getDistinctReviews(reviewList.await())
-                ReviewsManager().saveReviewTypesToDb(this@MainActivity, reviews)
-                isJsonDone.postValue(true)
-            }
+            saveReviewsToDb(reviewList.await())
+        }
+
+        val reviews = CoroutineScope(Dispatchers.IO).async {
+            reviewsManager.getDistinctReviews(reviewList.await())
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            ReviewsManager().saveReviewTypesToDb(this@MainActivity, reviews.await())
         }
     }
 
@@ -114,7 +103,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
     }
-
 
     private fun setDialog(show: Boolean) {
         val builder = AlertDialog.Builder(this)
