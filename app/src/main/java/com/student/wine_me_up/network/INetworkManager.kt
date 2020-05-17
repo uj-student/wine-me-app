@@ -14,6 +14,7 @@ interface INetworkManager {
     fun getLatest(
         @Header("Authorization") token: String,
         @Query("limit") limit: Int = 500,
-        @Query("offset") offset: Int = 500
+        @Query("offset") offset: Int = 500,
+        @Query("ordering") ordering: String = "-date"
     ): Call<LatestWineScoreResponse>
 }
