@@ -105,7 +105,7 @@ class WineRecommendFactory(private var wineList: List<*>) {
 
         for (userPreference in userWinePreferences) {
             for (wine in wineList as List<WineReviewsModel>){
-                if (!wine.description.isNullOrEmpty() && wine.description.contains(userPreference)){
+                if (!wine.description.isNullOrEmpty() && wine.description.contains(userPreference, ignoreCase = true)){
                     returnObject.add(wine)
                 }
             }

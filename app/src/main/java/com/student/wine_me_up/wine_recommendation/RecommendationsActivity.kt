@@ -3,7 +3,6 @@ package com.student.wine_me_up.wine_recommendation
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -167,7 +166,7 @@ class RecommendationsActivity : AppCompatActivity() {
 
         lvWineRecommendations.setOnItemClickListener { parent, view, position, id ->
 
-            if (sourceOfData == SourceOfData.GLOBAL_API){
+            if (sourceOfData == SourceOfData.GLOBAL_API) {
                 val fragmentTransaction = supportFragmentManager.beginTransaction()
                 val wineDetails = WineDetailsFragment(wineRecommendationList[position] as WineModel)
                 fragmentTransaction.replace(R.id.recommendationActivity, wineDetails, null)
@@ -175,7 +174,8 @@ class RecommendationsActivity : AppCompatActivity() {
                 fragmentTransaction.commit()
             } else {
                 val fragmentTransaction = supportFragmentManager.beginTransaction()
-                val wineDetails = ReviewFragments(wineRecommendationList[position] as WineReviewsModel)
+                val wineDetails =
+                    ReviewFragments(wineRecommendationList[position] as WineReviewsModel)
                 fragmentTransaction.replace(R.id.recommendationActivity, wineDetails, null)
                 fragmentTransaction.addToBackStack(null)
                 fragmentTransaction.commit()

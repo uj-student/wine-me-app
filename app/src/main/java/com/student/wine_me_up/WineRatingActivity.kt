@@ -2,7 +2,6 @@ package com.student.wine_me_up
 
 import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ListView
 import android.widget.Toast
@@ -36,8 +35,6 @@ class WineRatingActivity : AppCompatActivity() {
     private lateinit var sortByPoints: Set<WineReviewsModel>
 
     private lateinit var sourceOfData: SourceOfData
-
-    private val fragmentTransaction = supportFragmentManager.beginTransaction()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -148,6 +145,7 @@ class WineRatingActivity : AppCompatActivity() {
                     wineList = sortByReviewers
                 }
 
+                val fragmentTransaction = supportFragmentManager.beginTransaction()
                 val wineDetails = WineDetailsFragment(wineList.toList()[position])
                 fragmentTransaction.replace(R.id.clWineRating, wineDetails, null)
                 fragmentTransaction.addToBackStack(null)
@@ -157,6 +155,8 @@ class WineRatingActivity : AppCompatActivity() {
                 if (primeursChip.isChecked) {
                     wineList = sortByPrice
                 }
+
+                val fragmentTransaction = supportFragmentManager.beginTransaction()
                 val wineDetails = ReviewFragments.newInstance(wineList.toList()[position])
                 fragmentTransaction.replace(R.id.clWineRating, wineDetails, null)
                 fragmentTransaction.addToBackStack(null)
